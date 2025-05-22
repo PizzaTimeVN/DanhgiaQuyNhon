@@ -1,0 +1,131 @@
+// Google Apps Script để nhận dữ liệu từ website và lưu vào Google Sheets
+
+function doPost(e) {
+  try {
+    // Parse dữ liệu JSON từ request
+    const data = JSON.parse(e.postData.contents);
+    
+    // Lấy hoặc tạo Google Sheet
+    const sheet = getOrCreateSheet();
+    
+    // Thêm dữ liệu vào sheet
+    sheet.appendRow([
+      data.timestamp,
+      data.branch,
+      data.name,
+      data.email,
+      data.rating,
+      data.feedback
+    ]);
+    
+    // Trả về response thành công
+    return ContentService
+      .createTextOutput(JSON.stringify({
+        status: 'success',
+        message: 'Dữ liệu đã được lưu thành công'
+      }))
+      .setMimeType(ContentService.MimeType.JSON);
+      
+  } catch (error) {
+    // Trả về lỗi nếu có
+    return ContentService
+      .createTextOutput(JSON.stringify({
+        status: 'error',
+        message: error.toString()
+      }))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+}
+
+function doGet(e) {
+  // API để lấy dữ liệu (cho admin xem)
+  try {
+    const sheet = getOrCreateSheet();
+    const data = sheet.getDataRange().getValues();
+    
+    // Chuyển đổi thành JSON
+    const headers = data[0];
+    const rows = data.slice(1);
+    const jsonData = rows.map(row => {
+      const obj = {};
+      headers.forEach((header, index) => {
+        obj[header] = row[index];
+      });
+      return obj;
+    });
+    
+    return ContentService
+      .createTextOutput(JSON.stringify({
+        status: 'success',
+        data: jsonData
+      }))
+      .setMimeType(ContentService.MimeType.JSON);
+      
+  } catch (error) {
+    return ContentService
+      .createTextOutput(JSON.stringify({
+        status: 'error',
+        message: error.toString()
+      }))
+      .setMimeType(ContentService.MimeType.JSON);
+  }
+}
+
+function getOrCreateSheet() {
+  const SHEET_NAME = 'Customer Feedback';
+  
+  // Tìm sheet hiện tại hoặc tạo mới
+  let spreadsheet = SpreadsheetApp.getActiveSpreadsheet();
+  
+  // Nếu chưa có spreadsheet, tạo mới
+  if (!spreadsheet) {
+    spreadsheet = SpreadsheetApp.create('Customer Feedback Data');
+  }
+  
+  let sheet = spreadsheet.getSheetByName(SHEET_NAME);
+  
+  // Nếu chưa có sheet, tạo mới và thêm header
+  if (!sheet) {
+    sheet = spreadsheet.insertSheet(SHEET_NAME);
+    
+    // Thêm header row
+    sheet.getRange(1, 1, 1, 6).setValues([[
+      'Thời gian', 'Chi nhánh', 'Họ tên', 'Email', 'Đánh giá', 'Phản hồi'
+    ]]);
+    
+    // Format header
+    const headerRange = sheet.getRange(1, 1, 1, 6);
+    headerRange.setFontWeight('bold');
+    headerRange.setBackground('#4CAF50');
+    headerRange.setFontColor('white');
+    
+    // Auto resize columns
+    sheet.autoResizeColumns(1, 6);
+  }
+  
+  return sheet;
+}
+
+// Function test để kiểm tra
+function testFunction() {
+  const testData = {
+    timestamp: new Date().toLocaleString('vi-VN'),
+    branch: 'Pizza Time Dien Hong',
+    name: 'Test User',
+    email: 'test@example.com',
+    rating: 'Chưa hài lòng',
+    feedback: 'Đây là test feedback'
+  };
+  
+  const sheet = getOrCreateSheet();
+  sheet.appendRow([
+    testData.timestamp,
+    testData.branch,
+    testData.name,
+    testData.email,
+    testData.rating,
+    testData.feedback
+  ]);
+  
+  console.log('Test completed successfully');
+}
