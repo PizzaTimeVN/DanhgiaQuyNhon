@@ -348,143 +348,92 @@
     </div>
 
     <script>
-        // Cấu hình - Thay đổi link Google Maps của bạn tại đây
-       const GOOGLE_MAPS_REVIEW_URL = 'https://g.page/r/CbFhFW5zNLqLEBM/review';
-        // Hoặc sử dụng link rút gọn: 'https://g.page/YOUR_BUSINESS/review'
+    const GOOGLE_MAPS_REVIEW_URL = 'https://g.page/r/CbFhFW5zNLqLEBM/review';
+    const TELEGRAM_BOT_TOKEN = '7919448291:AAHTePhddzxWxyTeRF_92e3t18y_7uiHXY4';
+    const TELEGRAM_CHAT_ID = '-1002524397709';
+
+    function handleRating(rating) {
+        const ratingStep = document.getElementById('rating-step');
+        const feedbackForm = document.getElementById('feedback-form');
+        const googleRedirect = document.getElementById('google-redirect');
         
-        function handleRating(rating) {
-            const ratingStep = document.getElementById('rating-step');
-            const feedbackForm = document.getElementById('feedback-form');
-            const googleRedirect = document.getElementById('google-redirect');
-            
-            ratingStep.style.display = 'none';
-            
-            if (rating === 'satisfied') {
-                // Khách hàng hài lòng - chuyển đến Google Maps
-                document.getElementById('googleMapsLink').href = GOOGLE_MAPS_REVIEW_URL;
-                googleRedirect.classList.add('show');
-            } else {
-                // Khách hàng chưa hài lòng - hiển thị form phản hồi
-                feedbackForm.classList.add('show');
-            }
-        }
+        ratingStep.style.display = 'none';
         
-        function resetForm() {
-            // Reset tất cả các bước về trạng thái ban đầu
-            document.getElementById('rating-step').style.display = 'block';
-            document.getElementById('feedback-form').classList.remove('show');
-            document.getElementById('google-redirect').classList.remove('show');
-            document.getElementById('success-message').classList.remove('show');
-            
-            // Reset form
-            document.getElementById('dissatisfiedForm').reset();
+        if (rating === 'satisfied') {
+            document.getElementById('googleMapsLink').href = GOOGLE_MAPS_REVIEW_URL;
+            googleRedirect.classList.add('show');
+        } else {
+            feedbackForm.classList.add('show');
         }
-        const TELEGRAM_BOT_TOKEN = '7919448291:AAHTePhddzxWxyTeRF_92e3t18y_7uiHXY4'; // Thay bằng token của bạn
-const TELEGRAM_CHAT_ID = '-1002524397709'; // Thay bằng chat ID nhóm hoặc kênh của bạn
+    }
 
-function sendFeedbackToTelegram(data) {
-  const message = `📩 *Phản hồi mới từ khách hàng:*\n\n👤 Họ tên: ${data.name || 'Không cung cấp'}\n📱 Số điện thoại: ${data.phone || 'Không cung cấp'}\n📍 Chi nhánh: ${data.location || 'Không rõ'}\n📝 Góp ý:\n${data.feedback}\n\n🕒 Thời gian: ${data.timestamp}`;
+    function resetForm() {
+        document.getElementById('rating-step').style.display = 'block';
+        document.getElementById('feedback-form').classList.remove('show');
+        document.getElementById('google-redirect').classList.remove('show');
+        document.getElementById('success-message').classList.remove('show');
+        document.getElementById('dissatisfiedForm').reset();
+    }
 
+    function sendFeedbackToTelegram(data) {
+        const message = `📩 *Phản hồi mới từ khách hàng:*\n\n👤 Họ tên: ${data.name || 'Không cung cấp'}\n📱 Số điện thoại: ${data.phone || 'Không cung cấp'}\n📍 Chi nhánh: ${data.location || 'Không rõ'}\n📝 Góp ý:\n${data.feedback}\n\n🕒 Thời gian: ${data.timestamp}`;
 
-    fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-            chat_id: TELEGRAM_CHAT_ID,
-            text: message,
-            parse_mode: 'Markdown'
+        fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({
+                chat_id: TELEGRAM_CHAT_ID,
+                text: message,
+                parse_mode: 'Markdown'
+            })
         })
-    }).then(res => res.json())
-      .then(response => {
-        console.log('Gửi Telegram thành công:', response);
-    }).catch(error => {
-        console.error('Lỗi khi gửi Telegram:', error);
-    });
-}
-
-       
-        // Xử lý submit form phản hồi
-        document.getElementById('dissatisfiedForm').addEventListener('submit', function(e) {
-            e.preventDefault();
-
-            // Gửi phản hồi qua Telegram
-  sendFeedbackToTelegram(formData);
-});
-            
-            // Lấy dữ liệu form
-            const formData = {
-                name: document.getElementById('name').value,
-                phone: document.getElementById('phone').value,
-                location: document.getElementById('location').value,
-                feedback: document.getElementById('feedback').value,
-                timestamp: new Date().toISOString()
-            };
-            
-            // Ở đây bạn có thể:
-            // 1. Gửi data đến server/API
-            // 2. Lưu vào localStorage
-            // 3. Gửi email qua service như EmailJS
-            // 4. Gửi đến Google Forms, Airtable, etc.
-            
-            console.log('Feedback received:', formData);
-            
-            // Lưu vào localStorage như ví dụ
-            saveFeedbackToLocal(formData);
-            
-            // Hiển thị thông báo thành công
-            document.getElementById('feedback-form').classList.remove('show');
-            document.getElementById('success-message').classList.add('show');
-        });
-        
-        function saveFeedbackToLocal(data) {
-            // Lưu phản hồi vào localStorage
-            let feedbacks = JSON.parse(localStorage.getItem('customerFeedbacks') || '[]');
-            feedbacks.push(data);
-            localStorage.setItem('customerFeedbacks', JSON.stringify(feedbacks));
-        }
-        
-        // Function để xem tất cả feedback (cho admin)
-        function viewAllFeedbacks() {
-            const feedbacks = JSON.parse(localStorage.getItem('customerFeedbacks') || '[]');
-            console.log('All feedbacks:', feedbacks);
-            return feedbacks;
-        }
-        
-        // Thêm event listener cho keyboard navigation
-        document.addEventListener('keydown', function(e) {
-            if (e.key === 'Escape') {
-                resetForm();
-            }
-        });
-
-        const TELEGRAM_BOT_TOKEN = '7919448291:AAHTePhddzxWxyTeRF_92e3t18y_7uiHXY4'; // Thay bằng token của bạn
-const TELEGRAM_CHAT_ID = '-1002524397709'; // Thay bằng chat ID nhóm hoặc kênh của bạn
-
-function sendFeedbackToTelegram(data) {
-  const message = `📩 *Phản hồi mới từ khách hàng:*\n\n👤 Họ tên: ${data.name || 'Không cung cấp'}\n📱 Số điện thoại: ${data.phone || 'Không cung cấp'}\n📍 Chi nhánh: ${data.location || 'Không rõ'}\n📝 Góp ý:\n${data.feedback}\n\n🕒 Thời gian: ${data.timestamp}`;
-
-
-    fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json'
-        },
-        body: JSON.stringify({
-            chat_id: TELEGRAM_CHAT_ID,
-            text: message,
-            parse_mode: 'Markdown'
+        .then(res => res.json())
+        .then(response => {
+            console.log('Gửi Telegram thành công:', response);
         })
-    }).then(res => res.json())
-      .then(response => {
-        console.log('Gửi Telegram thành công:', response);
-    }).catch(error => {
-        console.error('Lỗi khi gửi Telegram:', error);
-    });
-}
+        .catch(error => {
+            console.error('Lỗi khi gửi Telegram:', error);
+        });
+    }
 
-    </script>
+    function saveFeedbackToLocal(data) {
+        let feedbacks = JSON.parse(localStorage.getItem('customerFeedbacks') || '[]');
+        feedbacks.push(data);
+        localStorage.setItem('customerFeedbacks', JSON.stringify(feedbacks));
+    }
+
+    function viewAllFeedbacks() {
+        const feedbacks = JSON.parse(localStorage.getItem('customerFeedbacks') || '[]');
+        console.log('All feedbacks:', feedbacks);
+        return feedbacks;
+    }
+
+    document.getElementById('dissatisfiedForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+
+        const formData = {
+            name: document.getElementById('name').value,
+            phone: document.getElementById('phone').value,
+            location: document.getElementById('location').value,
+            feedback: document.getElementById('feedback').value,
+            timestamp: new Date().toISOString()
+        };
+
+        sendFeedbackToTelegram(formData);
+        saveFeedbackToLocal(formData);
+
+        document.getElementById('feedback-form').classList.remove('show');
+        document.getElementById('success-message').classList.add('show');
+    });
+
+    document.addEventListener('keydown', function(e) {
+        if (e.key === 'Escape') {
+            resetForm();
+        }
+    });
+</script>
 
 </body>
 </html>
