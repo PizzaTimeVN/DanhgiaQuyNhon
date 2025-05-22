@@ -379,10 +379,39 @@
             // Reset form
             document.getElementById('dissatisfiedForm').reset();
         }
-        
+        const TELEGRAM_BOT_TOKEN = '7919448291:AAHTePhddzxWxyTeRF_92e3t18y_7uiHXY4'; // Thay bằng token của bạn
+const TELEGRAM_CHAT_ID = '-1002524397709'; // Thay bằng chat ID nhóm hoặc kênh của bạn
+
+function sendFeedbackToTelegram(data) {
+  const message = `📩 *Phản hồi mới từ khách hàng:*\n\n👤 Họ tên: ${data.name || 'Không cung cấp'}\n📱 Số điện thoại: ${data.phone || 'Không cung cấp'}\n📍 Chi nhánh: ${data.location || 'Không rõ'}\n📝 Góp ý:\n${data.feedback}\n\n🕒 Thời gian: ${data.timestamp}`;
+
+
+    fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            chat_id: TELEGRAM_CHAT_ID,
+            text: message,
+            parse_mode: 'Markdown'
+        })
+    }).then(res => res.json())
+      .then(response => {
+        console.log('Gửi Telegram thành công:', response);
+    }).catch(error => {
+        console.error('Lỗi khi gửi Telegram:', error);
+    });
+}
+
+       
         // Xử lý submit form phản hồi
         document.getElementById('dissatisfiedForm').addEventListener('submit', function(e) {
             e.preventDefault();
+
+            // Gửi phản hồi qua Telegram
+  sendFeedbackToTelegram(formData);
+});
             
             // Lấy dữ liệu form
             const formData = {
