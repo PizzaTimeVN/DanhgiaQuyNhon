@@ -293,7 +293,7 @@
                 <h3 style="text-align: center; margin-bottom: 20px; color: #333;">
                     Chúng tôi rất tiếc về trải nghiệm này. Vui lòng chia sẻ để chúng tôi cải thiện!
                 </h3>
-               <form id="dissatisfiedForm">
+             <form id="dissatisfiedForm">
     <div class="form-group">
         <label for="name">Họ tên (tùy chọn):</label>
         <input type="text" id="name" name="name" placeholder="Nhập họ tên của bạn">
@@ -318,8 +318,11 @@
         <label for="feedback">Góp ý của bạn:</label>
         <textarea id="feedback" name="feedback" placeholder="Vui lòng chia sẻ chi tiết về vấn đề bạn gặp phải để chúng tôi có thể cải thiện..." required></textarea>
     </div>
+
+    <!-- ✅ Submit button phải nằm bên trong form -->
+    <button type="submit" class="submit-btn">Gửi phản hồi</button>
 </form>
-<button type="submit" class="submit-btn">Gửi phản hồi</button>
+
 
                 <a href="#" class="back-btn" onclick="resetForm()">← Quay lại</a>
             </div>
