@@ -269,6 +269,7 @@
 <body>
     <div class="container">
         <div class="header">
+            <img src="logo.jpg" alt="Logo" style="height: 60px; margin-bottom: 15px;">
             <h1>🌟 Đánh giá dịch vụ</h1>
             <p>Ý kiến của bạn rất quan trọng với chúng tôi!</p>
         </div>
@@ -292,21 +293,33 @@
                 <h3 style="text-align: center; margin-bottom: 20px; color: #333;">
                     Chúng tôi rất tiếc về trải nghiệm này. Vui lòng chia sẻ để chúng tôi cải thiện!
                 </h3>
-                <form id="dissatisfiedForm">
-                    <div class="form-group">
-                        <label for="name">Họ tên (tùy chọn):</label>
-                        <input type="text" id="name" name="name" placeholder="Nhập họ tên của bạn">
-                    </div>
-                    <div class="form-group">
-                        <label for="email">Email (tùy chọn):</label>
-                        <input type="email" id="email" name="email" placeholder="Nhập email của bạn">
-                    </div>
-                    <div class="form-group">
-                        <label for="feedback">Góp ý của bạn:</label>
-                        <textarea id="feedback" name="feedback" placeholder="Vui lòng chia sẻ chi tiết về vấn đề bạn gặp phải để chúng tôi có thể cải thiện..." required></textarea>
-                    </div>
-                    <button type="submit" class="submit-btn">Gửi phản hồi</button>
-                </form>
+               <form id="dissatisfiedForm">
+    <div class="form-group">
+        <label for="name">Họ tên (tùy chọn):</label>
+        <input type="text" id="name" name="name" placeholder="Nhập họ tên của bạn">
+    </div>
+
+    <div class="form-group">
+        <label for="phone">Số điện thoại (tùy chọn):</label>
+        <input type="tel" id="phone" name="phone" placeholder="Nhập số điện thoại của bạn">
+    </div>
+
+    <div class="form-group">
+        <label for="location">Bạn dùng món tại chi nhánh nào?</label>
+        <select id="location" name="location" required>
+            <option value="">-- Chọn địa điểm --</option>
+            <option value="Diên Hồng">Diên Hồng</option>
+            <option value="Nguyễn Huệ">Nguyễn Huệ</option>
+            <option value="Hồ Xuân Hương">Hồ Xuân Hương</option>
+        </select>
+    </div>
+
+    <div class="form-group">
+        <label for="feedback">Góp ý của bạn:</label>
+        <textarea id="feedback" name="feedback" placeholder="Vui lòng chia sẻ chi tiết về vấn đề bạn gặp phải để chúng tôi có thể cải thiện..." required></textarea>
+    </div>
+</form>
+
                 <a href="#" class="back-btn" onclick="resetForm()">← Quay lại</a>
             </div>
 
@@ -332,7 +345,7 @@
 
     <script>
         // Cấu hình - Thay đổi link Google Maps của bạn tại đây
-        const GOOGLE_MAPS_REVIEW_URL = 'https://search.google.com/local/writereview?placeid=YOUR_PLACE_ID';
+       const GOOGLE_MAPS_REVIEW_URL = 'https://g.page/r/CbFhFW5zNLqLEBM/review';
         // Hoặc sử dụng link rút gọn: 'https://g.page/YOUR_BUSINESS/review'
         
         function handleRating(rating) {
@@ -370,7 +383,8 @@
             // Lấy dữ liệu form
             const formData = {
                 name: document.getElementById('name').value,
-                email: document.getElementById('email').value,
+                phone: document.getElementById('phone').value,
+                location: document.getElementById('location').value,
                 feedback: document.getElementById('feedback').value,
                 timestamp: new Date().toISOString()
             };
@@ -411,6 +425,33 @@
                 resetForm();
             }
         });
+
+        const TELEGRAM_BOT_TOKEN = '7919448291:AAHTePhddzxWxyTeRF_92e3t18y_7uiHXY4'; // Thay bằng token của bạn
+const TELEGRAM_CHAT_ID = '-1002524397709'; // Thay bằng chat ID nhóm hoặc kênh của bạn
+
+function sendFeedbackToTelegram(data) {
+  const message = `📩 *Phản hồi mới từ khách hàng:*\n\n👤 Họ tên: ${data.name || 'Không cung cấp'}\n📱 Số điện thoại: ${data.phone || 'Không cung cấp'}\n📍 Chi nhánh: ${data.location || 'Không rõ'}\n📝 Góp ý:\n${data.feedback}\n\n🕒 Thời gian: ${data.timestamp}`;
+
+
+    fetch(`https://api.telegram.org/bot${TELEGRAM_BOT_TOKEN}/sendMessage`, {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({
+            chat_id: TELEGRAM_CHAT_ID,
+            text: message,
+            parse_mode: 'Markdown'
+        })
+    }).then(res => res.json())
+      .then(response => {
+        console.log('Gửi Telegram thành công:', response);
+    }).catch(error => {
+        console.error('Lỗi khi gửi Telegram:', error);
+    });
+}
+
     </script>
+
 </body>
 </html>
