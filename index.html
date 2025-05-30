@@ -1,10 +1,15 @@
 <!DOCTYPE html>
 <html lang="vi">
 <head>
+
+    </style>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Đánh giá dịch vụ của tụi mình</title>
     <style>
+        #googleMapsLink {
+            display: none;
+        }
         * {
             margin: 0;
             padding: 0;
@@ -329,14 +334,26 @@
 
             <!-- Bước 3: Chuyển hướng Google cho khách hàng hài lòng -->
             <div id="google-redirect" class="google-redirect">
-                <h3>🎉 Cảm ơn bạn đã hài lòng với dịch vụ!</h3>
-                <p>Nếu bạn có thời gian, hãy giúp tụi mình chia sẻ đánh giá tích cực trên Google Maps để nhiều người khác biết đến dịch vụ của tụi mình nhé!</p>
-                <a href="#" class="google-btn" id="googleMapsLink" target="_blank">
-                    ⭐ Đánh giá trên Google Maps
-                </a>
-                <br>
-                <a href="#" class="back-btn" onclick="resetForm()">← Quay lại</a>
-            </div>
+    <h3>🎉 Cảm ơn bạn đã hài lòng với dịch vụ!</h3>
+    <p>Hãy chọn chi nhánh bạn vừa trải nghiệm để giúp tụi mình nhận đánh giá đúng chỗ nha!</p>
+    
+    <div class="form-group">
+        <label for="satisfied-location">Bạn dùng món tại chi nhánh nào?</label>
+        <select id="satisfied-location" name="satisfied-location" onchange="updateGoogleLink()" required>
+            <option value="">-- Chọn địa điểm --</option>
+            <option value="Diên Hồng">Diên Hồng</option>
+            <option value="Nguyễn Huệ">Nguyễn Huệ</option>
+            <option value="Hồ Xuân Hương">Hồ Xuân Hương</option>
+        </select>
+    </div>
+
+    <a href="#" class="google-btn" id="googleMapsLink" target="_blank">
+        ⭐ Đánh giá trên Google Maps
+    </a>
+    <br>
+    <a href="#" class="back-btn" onclick="resetForm()">← Quay lại</a>
+</div>
+
 
             <!-- Thông báo thành công -->
             <div id="success-message" class="success-message">
@@ -348,31 +365,45 @@
     </div>
 
     <script>
-    const GOOGLE_MAPS_REVIEW_URL = 'https://g.page/r/CbFhFW5zNLqLEBM/review';
-    
-    function handleRating(rating) {
-        const ratingStep = document.getElementById('rating-step');
-        const feedbackForm = document.getElementById('feedback-form');
-        const googleRedirect = document.getElementById('google-redirect');
-        
-        ratingStep.style.display = 'none';
-        
-        if (rating === 'satisfied') {
-            document.getElementById('googleMapsLink').href = GOOGLE_MAPS_REVIEW_URL;
-            googleRedirect.classList.add('show');
-        } else {
-            feedbackForm.classList.add('show');
-        }
-    }
+const googleLinks = {
+    "Diên Hồng": "https://g.page/r/CbK0IACmXCMmEBM/review",
+    "Nguyễn Huệ": "https://g.page/r/CbFhFW5zNLqLEBM/review",
+    "Hồ Xuân Hương": "https://g.page/r/CdUv9GXodtAtEBM/review"
+};
 
-    function resetForm() {
-        document.getElementById('rating-step').style.display = 'block';
-        document.getElementById('feedback-form').classList.remove('show');
-        document.getElementById('google-redirect').classList.remove('show');
-        document.getElementById('success-message').classList.remove('show');
-        document.getElementById('dissatisfiedForm').reset();
+function handleRating(choice) {
+    document.getElementById('rating-step').style.display = 'none';
+    if (choice === 'satisfied') {
+        document.getElementById('google-redirect').style.display = 'block';
+    } else {
+        document.getElementById('feedback-form').style.display = 'block';
     }
+}
 
+function updateGoogleLink() {
+    const location = document.getElementById('satisfied-location').value;
+    const linkElement = document.getElementById('googleMapsLink');
+
+    if (googleLinks[location]) {
+        linkElement.href = googleLinks[location];
+        linkElement.style.display = 'inline-block';
+    } else {
+        linkElement.href = '#';
+        linkElement.style.display = 'none';
+    }
+}
+
+function resetForm() {
+    document.getElementById('rating-step').style.display = 'block';
+    document.getElementById('feedback-form').style.display = 'none';
+    document.getElementById('google-redirect').style.display = 'none';
+    document.getElementById('success-message').style.display = 'none';
+
+    // Reset form fields
+    document.getElementById('dissatisfiedForm').reset();
+    document.getElementById('satisfied-location').value = '';
+    document.getElementById('googleMapsLink').style.display = 'none';
+}
     function sendFeedbackToDiscord(data) {
     const message = `📩 **Phản hồi mới từ khách hàng:**\n\n` +
                     `👤 **Họ tên:** ${data.name || 'Không cung cấp'}\n` +
